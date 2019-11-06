@@ -12,7 +12,7 @@ public class Unit : MonoBehaviour {
 	public float turnDst = 5;
 	public float stoppingDst = 10;
 
-	Path path;
+	PathCreate path;
 
 	void Start() {
 		StartCoroutine (UpdatePath ());
@@ -20,7 +20,7 @@ public class Unit : MonoBehaviour {
 
 	public void OnPathFound(Vector3[] waypoints, bool pathSuccessful) {
 		if (pathSuccessful) {
-			path = new Path(waypoints, transform.position, turnDst, stoppingDst);
+			path = new PathCreate(waypoints, transform.position, turnDst, stoppingDst);
 
 			StopCoroutine("FollowPath");
 			StartCoroutine("FollowPath");
