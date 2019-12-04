@@ -22,7 +22,7 @@ namespace Panda.Examples.PlayTag
         #region tasks
 
         [Task]
-        bool IsIt = true; // Whether the agent is "It".
+        public bool IsIt = true; // Whether the agent is "It".
 
         bool _IsColliding_Player = false;
 

@@ -1,0 +1,20 @@
+tree("Root")
+    fallback
+        tree("Patrol")
+        tree("ChasePlayer")
+
+
+tree("Patrol")
+    while not playerInRange
+        sequence
+            MoveToCheckpoint
+            Wait(3.0)
+            FindNextCheckpoint
+            
+
+
+tree("ChasePlayer")
+	while playerInRange
+		repeat
+			sequence
+				MoveToPlayer
