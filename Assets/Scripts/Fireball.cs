@@ -5,6 +5,7 @@ using UnityEngine;
 public class Fireball : MonoBehaviour {
 
     public float speed;
+    public GameObject impactPrefab;
 
     private Transform player;
     private Vector3 target;
@@ -29,6 +30,8 @@ public class Fireball : MonoBehaviour {
     }
 
     private void DestroyFireball() {
+        var explosion = Instantiate(impactPrefab, gameObject.transform.position, Quaternion.identity);
+        Destroy(explosion, 1f);
         Destroy(gameObject);
     }
 }

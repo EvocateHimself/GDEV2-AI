@@ -8,6 +8,7 @@ public class Unit : MonoBehaviour {
 	const float pathUpdateMoveThreshold = .5f;
 
 	public Transform player;
+	public Transform firepoint;
 	private float currentSpeed;
 	public float speed = 20;
 	public float turnSpeed = 3;
@@ -114,9 +115,9 @@ public class Unit : MonoBehaviour {
 	[Task]
 	private void ShootFireball() {
 		if (shootInterval <= 0) {
-			var bullet = Instantiate(fireBall, transform.position, Quaternion.identity);
-            bullet.transform.position = this.transform.position;
-            bullet.transform.rotation = this.transform.rotation;
+			var bullet = Instantiate(fireBall, firepoint.transform.position, Quaternion.identity);
+            bullet.transform.position = firepoint.transform.position;
+            bullet.transform.rotation = firepoint.transform.rotation;
 
 			shootInterval = startTimeInterval;
 		} else {
