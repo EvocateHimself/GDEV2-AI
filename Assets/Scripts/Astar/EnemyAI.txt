@@ -2,10 +2,13 @@ tree("Root")
     fallback
         tree("Patrol")
         tree("ChasePlayer")
-
+        tree("Attack")
 
 tree("Patrol")
-    while not playerInRange
+    while 
+        sequence
+            not playerInRange
+            not attackPlayer
         sequence
             MoveToCheckpoint
             Wait(3.0)
@@ -14,7 +17,22 @@ tree("Patrol")
 
 
 tree("ChasePlayer")
-	while playerInRange
+	while
+        sequence 
+            playerInRange
+            not attackPlayer
 		repeat
 			sequence
 				MoveToPlayer
+
+tree("Attack")
+	while
+        sequence 
+            playerInRange
+            attackPlayer
+        repeat
+            sequence
+                ShootFireball
+                MoveToPlayer
+				
+

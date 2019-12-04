@@ -14,6 +14,13 @@ public class Unit : MonoBehaviour {
 	public float turnDst = 5;
 	public float stoppingDst = 10;
 
+	public float currentHealth;
+	public float maxHealth = 100f;
+
+	public float shootInterval;
+	public float startTimeInterval;
+	public GameObject fireBall;
+
 	[Task]
 	public bool playerInRange = false;
 
@@ -26,12 +33,15 @@ public class Unit : MonoBehaviour {
 	public float checkpointWaitTime = 3.0f;
 
 	public float lookRadius = 10f;
+	public float attackRadius = 5f;
 
 	CreatePath path;
 
 	private void Start() {
 		currentSpeed = speed;
 		waitTime = checkpointWaitTime;
+		currentHealth = maxHealth;
+		shootInterval = startTimeInterval;
         //randomSpot = Random.Range(0, moveSpots.Length);
 	}
 
@@ -41,7 +51,7 @@ public class Unit : MonoBehaviour {
 
 		if (playerDistance <= lookRadius) {
 			playerInRange = true;
-			if (playerDistance <= stoppingDst + 2f) {
+			if (playerDistance <= attackRadius) {
 				// Attack
 				attackPlayer = true;
 			}
@@ -52,6 +62,13 @@ public class Unit : MonoBehaviour {
 		else {
 			playerInRange = false;
 		}
+
+		// Die
+		if (currentHealth <= 0) {
+
+		}
+
+
 	}
 
 	public void OnPathFound(Vector3[] waypoints, bool pathSuccessful) {
@@ -90,6 +107,20 @@ public class Unit : MonoBehaviour {
 		}
 		else {
 			checkpointCounter = 0;
+		}
+		Task.current.Succeed();
+	}
+
+	[Task]
+	private void ShootFireball() {
+		if (shootInterval <= 0) {
+			var bullet = Instantiate(fireBall, transform.position, Quaternion.identity);
+            bullet.transform.position = this.transform.position;
+            bullet.transform.rotation = this.transform.rotation;
+
+			shootInterval = startTimeInterval;
+		} else {
+			shootInterval -= Time.deltaTime;
 		}
 		Task.current.Succeed();
 	}
@@ -145,7 +176,9 @@ public class Unit : MonoBehaviour {
 
     // Create Gizmos around gameObject in the inspector
     private void OnDrawGizmosSelected() {
-        Gizmos.color = Color.red;
+        Gizmos.color = Color.yellow;
         Gizmos.DrawWireSphere(transform.position, lookRadius);
+		Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(transform.position, attackRadius);
     }
 }
