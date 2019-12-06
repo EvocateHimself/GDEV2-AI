@@ -1,40 +1,51 @@
 ﻿using UnityEngine;
 using System.Collections;
 using Panda;
+using UnityEngine.UI;
 
 public class Unit : MonoBehaviour {
 
 	const float minPathUpdateTime = .2f;
 	const float pathUpdateMoveThreshold = .5f;
 
+	[Header("Movement")]
 	public Transform player;
-	public Transform firePoint;
 	private float currentSpeed;
 	public float speed = 20;
 	public float turnSpeed = 3;
 	public float turnDst = 5;
 	public float stoppingDst = 10;
 
-	public float currentHealth;
-	public float maxHealth = 100f;
+	public Transform[] checkpoints;
+	public int checkpointCounter = 0;
+	private float waitTime;
+	public float checkpointWaitTime = 3.0f;
 
+	[Header("Health")]
+	public Image healthBar;
+	public float currentHealth;
+	private float currentHealthValue;
+	public float maxHealth = 100f;
+	public float lerpSpeed = 10f;
+
+	public float CurrentHealth {
+        get { return currentHealth; }
+        set { currentHealth = Mathf.Clamp(value, 0, maxHealth); }
+    }
+
+	[Header("Attack")]
+	public Transform firePoint;
+	public GameObject fireBall;
 	public float shootInterval;
 	public float startTimeInterval;
-	public GameObject fireBall;
+	public float lookRadius = 10f;
+	public float attackRadius = 5f;
 
 	[Task]
 	public bool playerInRange = false;
 
 	[Task]
 	public bool attackPlayer = false;
-
-	public Transform[] checkpoints;
-	public int checkpointCounter = 0;
-	private float waitTime;
-	public float checkpointWaitTime = 3.0f;
-
-	public float lookRadius = 10f;
-	public float attackRadius = 5f;
 
 	CreatePath path;
 
@@ -66,10 +77,11 @@ public class Unit : MonoBehaviour {
 
 		// Die
 		if (currentHealth <= 0) {
-
+			Destroy(gameObject, .2f);
 		}
 
-
+		currentHealthValue = Map(CurrentHealth, 0, maxHealth, 0, 1);
+        healthBar.fillAmount = Mathf.Lerp(healthBar.fillAmount, currentHealthValue, Time.deltaTime * lerpSpeed);
 	}
 
 	public void OnPathFound(Vector3[] waypoints, bool pathSuccessful) {
@@ -169,7 +181,15 @@ public class Unit : MonoBehaviour {
 		}
 	}
 
-	public void OnDrawGizmos() {
+	// Take damage when hit
+	private void OnTriggerEnter(Collider other) {
+		if(other.CompareTag("Bullet")) {
+			currentHealth -= player.GetComponent<Shooting>().damage;
+			print(player.GetComponent<Shooting>().damage);
+		}
+	}
+
+	private void OnDrawGizmos() {
 		if (path != null) {
 			path.DrawWithGizmos ();
 		}
@@ -181,5 +201,10 @@ public class Unit : MonoBehaviour {
         Gizmos.DrawWireSphere(transform.position, lookRadius);
 		Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, attackRadius);
+    }
+
+	// This method maps a range of numbers into another range
+    public float Map(float x, float in_min, float in_max, float out_min, float out_max) {
+        return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
     }
 }

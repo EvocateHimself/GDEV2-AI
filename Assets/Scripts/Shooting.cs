@@ -9,6 +9,8 @@ public class Shooting : MonoBehaviour {
     public GameObject bulletPrefab;
     public Image powerBar;
 
+    public float damage;
+    private float currentDamage;
     public float currentPower = 0;
     public float startPower = 20f;
     public float maxPower = 50f;
@@ -27,11 +29,14 @@ public class Shooting : MonoBehaviour {
     }
 
     private void Update() {
+        currentDamage = currentPower;
+
         if (Input.GetMouseButtonDown(0)) {
             mouseButtonHeldDown = true;
         }
 
         if (Input.GetMouseButtonUp(0)) {
+            damage = currentDamage;
             Shoot();
             mouseButtonHeldDown = false;
             currentPower = startPower;
@@ -40,7 +45,6 @@ public class Shooting : MonoBehaviour {
         if(mouseButtonHeldDown && currentPower <= maxPower) {
             currentPower += Time.deltaTime * chargeSpeed;
         }
-
         currentPowerValue = Map(CurrentPower, 0, maxPower, 0 - 0.1f, 1);
         powerBar.fillAmount = Mathf.Lerp(powerBar.fillAmount, currentPowerValue, Time.deltaTime * lerpSpeed);
     }

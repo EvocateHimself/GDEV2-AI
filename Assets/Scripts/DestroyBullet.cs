@@ -7,7 +7,11 @@ public class DestroyBullet : MonoBehaviour {
     public GameObject impactPrefab;
 
     private void OnTriggerEnter(Collider other) {
-        if(other.CompareTag("Enemy") || other.CompareTag("Environment")) {
+        if (other.CompareTag("Environment")) {
+            DestroyFireball();
+        } 
+        
+        else if (other.CompareTag("Enemy")) {
             DestroyFireball();
         }
     }
