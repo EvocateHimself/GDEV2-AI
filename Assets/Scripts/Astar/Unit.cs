@@ -1,5 +1,7 @@
-﻿using UnityEngine;
+﻿
+using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 using Panda;
 using UnityEngine.UI;
 
@@ -47,11 +49,16 @@ public class Unit : MonoBehaviour {
 
 	public Image statusImage;
 
+	public List<GameObject> shields = new List<GameObject>();
+
 	[Task]
 	public bool playerInRange = false;
 
 	[Task]
 	public bool attackPlayer = false;
+
+	[Task]
+	public bool defendAllies = false;
 
 	CreatePath path;
 
@@ -60,6 +67,10 @@ public class Unit : MonoBehaviour {
 		waitTime = checkpointWaitTime;
 		currentHealth = maxHealth;
 		shootInterval = startTimeInterval;
+		foreach(GameObject shield in GameObject.FindGameObjectsWithTag("Shield")) {
+            shields.Add(shield);
+            shield.SetActive(false);
+        }
         //randomSpot = Random.Range(0, moveSpots.Length);
 	}
 
@@ -149,6 +160,21 @@ public class Unit : MonoBehaviour {
 		Task.current.Succeed();
 	}
 
+	[Task]
+	private void ActivateShield() {
+        foreach(GameObject shield in shields) {
+            shield.SetActive(false);
+        }
+		Task.current.Succeed();
+	}
+
+	[Task]
+	private void DeactivateShield() {
+        foreach(GameObject shield in shields) {
+            shield.SetActive(false);
+        }
+		Task.current.Succeed();
+	}
 	
 	private void UpdatePath(Transform _target) {
 		PathRequestManager.RequestPath (new PathRequest(transform.position, _target.position, OnPathFound));

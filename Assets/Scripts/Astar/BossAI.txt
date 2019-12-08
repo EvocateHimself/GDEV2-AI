@@ -1,7 +1,8 @@
 tree("Root")
     fallback
         tree("FocusPlayer")
-        tree("Attack")        
+        tree("Attack")  
+        tree("Defend")       
 
 tree("FocusPlayer")
 	while
@@ -21,5 +22,13 @@ tree("Attack")
             sequence
                 ShootFireball
                 MoveToPlayer
-				
+
+tree("Defend")
+	while defendAllies
+        repeat
+            fallback
+                ActivateShield
+                Wait(3.0)
+                DeactivateShield
+                
 
