@@ -1,0 +1,25 @@
+tree("Root")
+    fallback
+        tree("FocusPlayer")
+        tree("Attack")        
+
+tree("FocusPlayer")
+	while
+        sequence 
+            playerInRange
+            not attackPlayer
+		repeat
+			sequence
+				MoveToPlayer
+
+tree("Attack")
+	while
+        sequence 
+            playerInRange
+            attackPlayer
+        repeat
+            sequence
+                ShootFireball
+                MoveToPlayer
+				
+

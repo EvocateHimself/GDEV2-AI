@@ -7,6 +7,8 @@ public class Unit : MonoBehaviour {
 
 	const float minPathUpdateTime = .2f;
 	const float pathUpdateMoveThreshold = .5f;
+	bool followingPath = true;
+
 
 	[Header("Movement")]
 	public Transform player;
@@ -16,6 +18,8 @@ public class Unit : MonoBehaviour {
 	public float turnDst = 5;
 	public float stoppingDst = 10;
 
+	public Transform spawnpoint;
+	public float spawnCooldown = 5f;
 	public Transform[] checkpoints;
 	public int checkpointCounter = 0;
 	private float waitTime;
@@ -41,6 +45,8 @@ public class Unit : MonoBehaviour {
 	public float lookRadius = 10f;
 	public float attackRadius = 5f;
 
+	public Image statusImage;
+
 	[Task]
 	public bool playerInRange = false;
 
@@ -63,21 +69,26 @@ public class Unit : MonoBehaviour {
 
 		if (playerDistance <= lookRadius) {
 			playerInRange = true;
+			statusImage.color = new Color32(255,255,0,255);
 			if (playerDistance <= attackRadius) {
 				// Attack
 				attackPlayer = true;
+				statusImage.color = new Color32(255,0,0,255);
 			}
 			else {
 				attackPlayer = false;
+				statusImage.color = new Color32(255,255,0,255);
 			}
 		} 
 		else {
 			playerInRange = false;
+			statusImage.color = new Color32(0,255,0,255);
 		}
 
 		// Die
 		if (currentHealth <= 0) {
 			Destroy(gameObject, .2f);
+
 		}
 
 		currentHealthValue = Map(CurrentHealth, 0, maxHealth, 0, 1);
@@ -145,7 +156,6 @@ public class Unit : MonoBehaviour {
 
 	IEnumerator FollowPath() {
 
-		bool followingPath = true;
 		int pathIndex = 0;
 		transform.LookAt (path.lookPoints [0]);
 
