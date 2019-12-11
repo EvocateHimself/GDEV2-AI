@@ -41,9 +41,16 @@ public class Unit : MonoBehaviour {
 
 	[Header("Attack")]
 	public Transform firePoint;
-	public GameObject fireBall;
-	public float shootInterval;
-	public float startTimeInterval;
+	public GameObject fireBallPrefab;
+	private float fireBallInterval;
+	public float startTimeFireBallInterval = 1f;
+	public GameObject lavaPrefab;
+	public float lavaIgniteRadius = 5f;
+	public float lavaSpreadTime = 1f;
+	public float lavaMaxSpread = 15f;
+	private float lavaInterval;
+	public float startTimeLavaInterval = 5f;
+
 	public float lookRadius = 10f;
 	public float attackRadius = 5f;
 
@@ -66,7 +73,8 @@ public class Unit : MonoBehaviour {
 		currentSpeed = speed;
 		waitTime = checkpointWaitTime;
 		currentHealth = maxHealth;
-		shootInterval = startTimeInterval;
+		fireBallInterval = startTimeFireBallInterval;
+		lavaInterval = startTimeLavaInterval;
 		foreach(GameObject shield in GameObject.FindGameObjectsWithTag("Shield")) {
             shields.Add(shield);
             shield.SetActive(false);
@@ -148,16 +156,43 @@ public class Unit : MonoBehaviour {
 
 	[Task]
 	private void ShootFireball() {
-		if (shootInterval <= 0) {
-			var bullet = Instantiate(fireBall, firePoint.transform.position, Quaternion.identity);
+		if (fireBallInterval <= 0) {
+			var bullet = Instantiate(fireBallPrefab, firePoint.transform.position, Quaternion.identity);
             bullet.transform.position = firePoint.transform.position;
             bullet.transform.rotation = firePoint.transform.rotation;
 
-			shootInterval = startTimeInterval;
+			fireBallInterval = startTimeFireBallInterval;
 		} else {
-			shootInterval -= Time.deltaTime;
+			fireBallInterval -= Time.deltaTime;
 		}
 		Task.current.Succeed();
+	}
+
+	[Task]
+	private void CreateLavaPit() {
+		if (lavaInterval <= 0) {
+			StartCoroutine(SizeLavaPit());
+			lavaInterval = startTimeLavaInterval;
+		} else {
+			lavaInterval -= Time.deltaTime;
+		}
+		Task.current.Succeed();
+	}
+
+	private IEnumerator SizeLavaPit() {
+		Vector3 pos = new Vector3(Random.Range(-lavaIgniteRadius, lavaIgniteRadius), -0.4f, Random.Range(-lavaIgniteRadius, lavaIgniteRadius));
+		var lava = Instantiate (lavaPrefab, pos, Quaternion.identity);
+
+		Vector3 beginScale = new Vector3(0, 0.43f, 0);
+
+		lava.transform.localScale = beginScale;
+
+		while (lava.transform.localScale.z < lavaMaxSpread) {
+			lava.transform.localScale += new Vector3(1f, 0, 1f) / lavaSpreadTime * Time.deltaTime;
+			//lava.transform.rotation = Quaternion.Lerp(crop.transform.rotation, randomRotation, processingTime * Time.deltaTime);
+
+			yield return new WaitForEndOfFrame();
+		}
 	}
 
 	[Task]
@@ -220,8 +255,15 @@ public class Unit : MonoBehaviour {
 	// Take damage when hit
 	private void OnTriggerEnter(Collider other) {
 		if(other.CompareTag("Bullet")) {
-			currentHealth -= player.GetComponent<Shooting>().damage;
+			CurrentHealth -= player.GetComponent<Shooting>().damage;
 			print(player.GetComponent<Shooting>().damage);
+		}
+	}
+
+	// Heal enemy when in touch with the lava
+	private void OnTriggerStay(Collider other) {
+		if(other.CompareTag("Lava")) {
+			CurrentHealth += 2f;
 		}
 	}
 
@@ -237,6 +279,8 @@ public class Unit : MonoBehaviour {
         Gizmos.DrawWireSphere(transform.position, lookRadius);
 		Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, attackRadius);
+		Gizmos.color = Color.blue;
+        Gizmos.DrawWireSphere(transform.position, lavaIgniteRadius);
     }
 
 	// This method maps a range of numbers into another range

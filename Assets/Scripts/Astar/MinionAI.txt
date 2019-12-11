@@ -1,10 +1,22 @@
 tree("Root")
     fallback
-        tree("FocusPlayer")
-        tree("Attack")  
-        tree("Defend")       
+        tree("Patrol")
+        tree("ChasePlayer")
+        tree("Attack")
 
-tree("FocusPlayer")
+tree("Patrol")
+    while 
+        sequence
+            not playerInRange
+            not attackPlayer
+        sequence
+            MoveToCheckpoint
+            Wait(3.0)
+            FindNextCheckpoint
+            
+
+
+tree("ChasePlayer")
 	while
         sequence 
             playerInRange
@@ -22,14 +34,5 @@ tree("Attack")
             sequence
                 ShootFireball
                 MoveToPlayer
-                CreateLavaPit
-
-tree("Defend")
-	while defendAllies
-        repeat
-            fallback
-                ActivateShield
-                Wait(3.0)
-                DeactivateShield
-                
+				
 
