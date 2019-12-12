@@ -32,6 +32,8 @@ public class UnitBoss : MonoBehaviour {
         set { currentHealth = Mathf.Clamp(value, 0, maxHealth); }
     }
 
+	[SerializeField] private GameObject shield;
+
 	[Header("Attack")]
 	[SerializeField] private Transform firePoint;
 	[SerializeField] private GameObject fireBallPrefab;
@@ -57,8 +59,12 @@ public class UnitBoss : MonoBehaviour {
 	[SerializeField] private Sprite attackSprite;
 	private Sprite defendSprite;
 	private bool isDead = false;
+	private bool shieldAlive = true;
+	private int index;
 
 	public List<GameObject> shields = new List<GameObject>();
+
+	public TempleHealth[] templeHealths;
 
 	[Task]
 	private bool playerInRange = false;
@@ -103,6 +109,13 @@ public class UnitBoss : MonoBehaviour {
 		else {
 			playerInRange = false;
 			statusImage.sprite = defendSprite;
+		}
+
+		// Check if all temples are destroyed - for loop doesn't seem to be working so doing it manually
+		if (templeHealths[0].CurrentHealth <= 0 
+		&& templeHealths[1].CurrentHealth <= 0) {
+			shield.SetActive(false); // Deactivate the shield
+			shieldAlive = false;
 		}
 
 		// Die
@@ -220,8 +233,11 @@ public class UnitBoss : MonoBehaviour {
 	// Take damage when hit
 	private void OnTriggerEnter(Collider other) {
 		if(other.CompareTag("Bullet")) {
-			CurrentHealth -= player.GetComponent<Shooting>().damage;
 			takeHitSound.Play();
+
+			if (!shieldAlive) { 
+				CurrentHealth -= player.GetComponent<Shooting>().damage;
+			}
 		}
 	}
 
