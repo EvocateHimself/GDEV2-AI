@@ -1,0 +1,46 @@
+tree("Root")
+    fallback
+        tree("Patrol")
+        tree("ChasePlayer")
+        tree("Attack")
+        tree("Heal")
+
+tree("Patrol")
+    while 
+        sequence
+            not playerInRange
+            not attackPlayer
+        repeat
+            sequence
+                MoveToCheckpoint
+                Wait(3.0)
+                FindNextCheckpoint
+
+tree("ChasePlayer")
+    while
+        sequence 
+            playerInRange
+            not attackPlayer
+        sequence
+            MoveToPlayer
+            tree("Heal")
+
+tree("Attack")
+    while
+        sequence 
+            playerInRange
+            attackPlayer
+        sequence
+            ShootFireball
+            MoveToPlayer
+            tree("Heal")
+
+tree("Heal")
+    while isHealing
+        sequence
+            HealAI
+
+
+
+
+

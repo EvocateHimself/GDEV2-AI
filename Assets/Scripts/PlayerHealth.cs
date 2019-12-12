@@ -8,8 +8,12 @@ public class PlayerHealth : MonoBehaviour {
 
     [Header("Health")]
 	[SerializeField] private Image healthBar;
+    [SerializeField] private Material damageMat;
 	[SerializeField] private AudioSource takeHitSound;
+	[SerializeField] private AudioSource burnSound;
 	[SerializeField] private UnitGuard unitGuard;
+	[SerializeField] private UnitBoss unitBoss;
+    private Material safeMat;
 
 	[SerializeField] private float currentHealth;
 	private float currentHealthValue;
@@ -23,6 +27,8 @@ public class PlayerHealth : MonoBehaviour {
 
     private void Start() {
 		currentHealth = maxHealth;
+        safeMat = gameObject.GetComponent<MeshRenderer>().material;
+
     }
 
     private void Update() {
@@ -43,7 +49,30 @@ public class PlayerHealth : MonoBehaviour {
 			CurrentHealth -= unitGuard.fireBallDamage;
 			takeHitSound.Play();
 		}
+
+        if(other.CompareTag("MegaFireball")) {
+			CurrentHealth -= unitBoss.megaFireBallDamage;
+			takeHitSound.Play();
+		}
+
+        if(other.CompareTag("Lava")) {
+			burnSound.Play();
+		}
 	}
+
+    private void OnTriggerStay(Collider other) {
+        if(other.CompareTag("Lava")) {
+			CurrentHealth -= unitBoss.lavaDamage;
+            gameObject.GetComponent<MeshRenderer>().material = damageMat;
+		}
+    }
+
+    private void OnTriggerExit(Collider other) {
+        if(other.CompareTag("Lava")) {
+            gameObject.GetComponent<MeshRenderer>().material = safeMat;
+			burnSound.Stop();
+		}
+    }
 
     // This method maps a range of numbers into another range
     public float Map(float x, float in_min, float in_max, float out_min, float out_max) {

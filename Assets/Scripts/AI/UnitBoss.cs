@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using Panda;
 using UnityEngine.UI;
 
-public class UnitGuard : MonoBehaviour {
+public class UnitBoss : MonoBehaviour {
 
 	const float minPathUpdateTime = .2f;
 	const float pathUpdateMoveThreshold = .5f;
@@ -15,20 +15,16 @@ public class UnitGuard : MonoBehaviour {
 	[Header("Movement")]
 	[SerializeField] private Transform player;
 	private float currentSpeed;
-	[SerializeField] private float speed = 8;
+	[SerializeField] private float speed = 20;
 	[SerializeField] private float turnSpeed = 3;
 	[SerializeField] private float turnDst = 5;
 	[SerializeField] private float stoppingDst = 10;
-	[SerializeField] private Transform[] checkpoints;
-	[SerializeField] private int checkpointCounter = 0;
-	private float waitTime;
-	[SerializeField] private float checkpointWaitTime = 3.0f;
 
 	[Header("Health")]
 	[SerializeField] private Image healthBar;
 	[SerializeField] private float currentHealth;
 	private float currentHealthValue;
-	[SerializeField] private float maxHealth = 200f;
+	[SerializeField] private float maxHealth = 600f;
 	[SerializeField] private float lerpSpeed = 10f;
 
 	public float CurrentHealth {
@@ -40,18 +36,29 @@ public class UnitGuard : MonoBehaviour {
 	[SerializeField] private Transform firePoint;
 	[SerializeField] private GameObject fireBallPrefab;
 	[SerializeField] private AudioSource fireBallSound;
+	[SerializeField] private AudioSource lavaPitSound;
 	[SerializeField] private AudioSource takeHitSound;
 	[SerializeField] private AudioSource dieSound;
-	public float fireBallDamage = 10f;
+	public float megaFireBallDamage = 10f;
+	public float lavaDamage = 10f;
 	private float fireBallInterval;
-	[SerializeField] private float startTimeFireBallInterval = 2f;
-	[SerializeField] private float lookRadius = 25f;
-	[SerializeField] private float attackRadius = 20f;
+	[SerializeField] private float startTimeFireBallInterval = 1f;
+	[SerializeField] private GameObject lavaPrefab;
+	[SerializeField] private float lavaIgniteRadius = 5f;
+	[SerializeField] private float lavaSpreadTime = 1f;
+	[SerializeField] private float lavaMaxSpread = 15f;
+	private float lavaInterval;
+	[SerializeField] private float startTimeLavaInterval = 5f;
+
+	[SerializeField] private float lookRadius = 10f;
+	[SerializeField] private float attackRadius = 5f;
 
 	[SerializeField] private Image statusImage;
 	[SerializeField] private Sprite attackSprite;
 	private Sprite defendSprite;
 	private bool isDead = false;
+
+	public List<GameObject> shields = new List<GameObject>();
 
 	[Task]
 	private bool playerInRange = false;
@@ -59,14 +66,22 @@ public class UnitGuard : MonoBehaviour {
 	[Task]
 	private bool attackPlayer = false;
 
+	[Task]
+	private bool defendAllies = false;
+
 	CreatePath path;
 
 	private void Start() {
 		currentSpeed = speed;
-		waitTime = checkpointWaitTime;
 		currentHealth = maxHealth;
 		fireBallInterval = startTimeFireBallInterval;
+		lavaInterval = startTimeLavaInterval;
 		defendSprite = statusImage.sprite;
+
+		foreach(GameObject shield in GameObject.FindGameObjectsWithTag("Shield")) {
+            shields.Add(shield);
+            //shield.SetActive(false);
+        }
 	}
 
 	private void Update() {
@@ -95,7 +110,6 @@ public class UnitGuard : MonoBehaviour {
 			dieSound.Play();
 			isDead = true;
 			Destroy(gameObject, .5f);
-
 		}
 
 		currentHealthValue = Map(CurrentHealth, 0, maxHealth, 0, 1);
@@ -118,31 +132,6 @@ public class UnitGuard : MonoBehaviour {
 	}
 
 	[Task]
-	private void MoveToCheckpoint() {
-		// Move to checkpoint
-		UpdatePath(checkpoints[checkpointCounter]);
-
-		// Distance to the checkpoint
-		float patrolDistance = Vector3.Distance(checkpoints[checkpointCounter].position, transform.position);
-
-		// If distance is between unit and checkpoint destination is smaller or equal to destination, the unit has reached its destination
-		if (patrolDistance <= stoppingDst) {
-			Task.current.Succeed();
-		}
-	}
-
-	[Task]
-	private void FindNextCheckpoint() {
-		if (checkpointCounter < checkpoints.Length - 1) {
-			checkpointCounter++;
-		}
-		else {
-			checkpointCounter = 0;
-		}
-		Task.current.Succeed();
-	}
-
-	[Task]
 	private void ShootFireball() {
 		if (fireBallInterval <= 0) {
 			var bullet = Instantiate(fireBallPrefab, firePoint.transform.position, Quaternion.identity);
@@ -155,6 +144,36 @@ public class UnitGuard : MonoBehaviour {
 			fireBallInterval -= Time.deltaTime;
 		}
 		Task.current.Succeed();
+	}
+
+	[Task]
+	private void CreateLavaPit() {
+		if (lavaInterval <= 0) {
+			StartCoroutine(SizeLavaPit());
+			lavaInterval = startTimeLavaInterval;
+		} else {
+			lavaInterval -= Time.deltaTime;
+		}
+		Task.current.Succeed();
+	}
+
+	private IEnumerator SizeLavaPit() {
+		Vector3 pos = new Vector3(Random.Range(-lavaIgniteRadius, lavaIgniteRadius), -0.4f, Random.Range(-lavaIgniteRadius, lavaIgniteRadius));
+		var lava = Instantiate (lavaPrefab, pos, Quaternion.identity);
+		lavaPitSound.Play();
+
+		Vector3 beginScale = new Vector3(0, 0.43f, 0);
+
+		lava.transform.localScale = beginScale;
+
+		while (lava.transform.localScale.z < lavaMaxSpread) {
+			lava.transform.localScale += new Vector3(1f, 0, 1f) / lavaSpreadTime * Time.deltaTime;
+			//lava.transform.rotation = Quaternion.Lerp(crop.transform.rotation, randomRotation, processingTime * Time.deltaTime);
+
+			yield return new WaitForEndOfFrame();
+		}
+
+		Destroy(lava, 120f);
 	}
 	
 	private void UpdatePath(Transform _target) {
@@ -206,13 +225,6 @@ public class UnitGuard : MonoBehaviour {
 		}
 	}
 
-	// Heal enemy when in touch with the lava
-	private void OnTriggerStay(Collider other) {
-		if(other.CompareTag("Lava")) {
-			CurrentHealth += 2f;
-		}
-	}
-
 	private void OnDrawGizmos() {
 		if (path != null) {
 			path.DrawWithGizmos ();
@@ -225,6 +237,8 @@ public class UnitGuard : MonoBehaviour {
         Gizmos.DrawWireSphere(transform.position, lookRadius);
 		Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, attackRadius);
+		Gizmos.color = Color.blue;
+        Gizmos.DrawWireSphere(transform.position, lavaIgniteRadius);
     }
 
 	// This method maps a range of numbers into another range

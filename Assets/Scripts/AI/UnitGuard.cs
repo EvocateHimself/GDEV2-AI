@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using Panda;
 using UnityEngine.UI;
 
-public class Unit : MonoBehaviour {
+public class UnitGuard : MonoBehaviour {
 
 	const float minPathUpdateTime = .2f;
 	const float pathUpdateMoveThreshold = .5f;
@@ -13,59 +13,61 @@ public class Unit : MonoBehaviour {
 
 
 	[Header("Movement")]
-	public Transform player;
+	[SerializeField] private Transform player;
 	private float currentSpeed;
-	public float speed = 20;
-	public float turnSpeed = 3;
-	public float turnDst = 5;
-	public float stoppingDst = 10;
-
-	public Transform spawnpoint;
-	public float spawnCooldown = 5f;
-	public Transform[] checkpoints;
-	public int checkpointCounter = 0;
+	[SerializeField] private float speed = 8;
+	[SerializeField] private float turnSpeed = 3;
+	[SerializeField] private float turnDst = 5;
+	[SerializeField] private float stoppingDst = 10;
+	[SerializeField] private Transform[] checkpoints;
+	[SerializeField] private int checkpointCounter = 0;
 	private float waitTime;
-	public float checkpointWaitTime = 3.0f;
+	[SerializeField] private float checkpointWaitTime = 3.0f;
 
 	[Header("Health")]
-	public Image healthBar;
-	public float currentHealth;
+	[SerializeField] private Image healthBar;
+	[SerializeField] private float currentHealth;
 	private float currentHealthValue;
-	public float maxHealth = 100f;
-	public float lerpSpeed = 10f;
+	[SerializeField] private float maxHealth = 200f;
+	[SerializeField] private float lerpSpeed = 10f;
+	[SerializeField] private float healByLavaValue = 2f;
 
 	public float CurrentHealth {
         get { return currentHealth; }
         set { currentHealth = Mathf.Clamp(value, 0, maxHealth); }
     }
 
+	[SerializeField] private TempleHealth templeHealth;
+	[SerializeField] private GameObject shield;
+
 	[Header("Attack")]
-	public Transform firePoint;
-	public GameObject fireBallPrefab;
+	[SerializeField] private Transform firePoint;
+	[SerializeField] private GameObject fireBallPrefab;
+	[SerializeField] private AudioSource fireBallSound;
+	[SerializeField] private AudioSource takeHitSound;
+	[SerializeField] private AudioSource dieSound;
+	public float fireBallDamage = 10f;
 	private float fireBallInterval;
-	public float startTimeFireBallInterval = 1f;
-	public GameObject lavaPrefab;
-	public float lavaIgniteRadius = 5f;
-	public float lavaSpreadTime = 1f;
-	public float lavaMaxSpread = 15f;
-	private float lavaInterval;
-	public float startTimeLavaInterval = 5f;
+	[SerializeField] private float startTimeFireBallInterval = 2f;
+	[SerializeField] private float lookRadius = 25f;
+	[SerializeField] private float attackRadius = 20f;
 
-	public float lookRadius = 10f;
-	public float attackRadius = 5f;
-
-	public Image statusImage;
-
-	public List<GameObject> shields = new List<GameObject>();
+	[SerializeField] private Image statusImage;
+	[SerializeField] private Sprite attackSprite;
+	private Sprite defendSprite;
+	private bool isDead = false;
 
 	[Task]
-	public bool playerInRange = false;
+	private bool playerInRange = false;
 
 	[Task]
-	public bool attackPlayer = false;
+	private bool attackPlayer = false;
 
 	[Task]
-	public bool defendAllies = false;
+	public bool templeAlive = true;
+
+	[Task]
+	public bool isHealing = false;
 
 	CreatePath path;
 
@@ -74,12 +76,7 @@ public class Unit : MonoBehaviour {
 		waitTime = checkpointWaitTime;
 		currentHealth = maxHealth;
 		fireBallInterval = startTimeFireBallInterval;
-		lavaInterval = startTimeLavaInterval;
-		foreach(GameObject shield in GameObject.FindGameObjectsWithTag("Shield")) {
-            shields.Add(shield);
-            shield.SetActive(false);
-        }
-        //randomSpot = Random.Range(0, moveSpots.Length);
+		defendSprite = statusImage.sprite;
 	}
 
 	private void Update() {
@@ -88,25 +85,31 @@ public class Unit : MonoBehaviour {
 
 		if (playerDistance <= lookRadius) {
 			playerInRange = true;
-			statusImage.color = new Color32(255,255,0,255);
+			statusImage.sprite = attackSprite;
+
 			if (playerDistance <= attackRadius) {
 				// Attack
 				attackPlayer = true;
-				statusImage.color = new Color32(255,0,0,255);
 			}
 			else {
 				attackPlayer = false;
-				statusImage.color = new Color32(255,255,0,255);
 			}
-		} 
+		}
 		else {
 			playerInRange = false;
-			statusImage.color = new Color32(0,255,0,255);
+			statusImage.sprite = defendSprite;
+		}
+
+		if (templeHealth.CurrentHealth <= 0) {
+			shield.SetActive(false);
+			templeAlive = false;
 		}
 
 		// Die
-		if (currentHealth <= 0) {
-			Destroy(gameObject, .2f);
+		if (currentHealth <= 0 && !isDead) {
+			dieSound.Play();
+			isDead = true;
+			Destroy(gameObject, .5f);
 
 		}
 
@@ -160,6 +163,7 @@ public class Unit : MonoBehaviour {
 			var bullet = Instantiate(fireBallPrefab, firePoint.transform.position, Quaternion.identity);
             bullet.transform.position = firePoint.transform.position;
             bullet.transform.rotation = firePoint.transform.rotation;
+			fireBallSound.Play();
 
 			fireBallInterval = startTimeFireBallInterval;
 		} else {
@@ -169,47 +173,10 @@ public class Unit : MonoBehaviour {
 	}
 
 	[Task]
-	private void CreateLavaPit() {
-		if (lavaInterval <= 0) {
-			StartCoroutine(SizeLavaPit());
-			lavaInterval = startTimeLavaInterval;
-		} else {
-			lavaInterval -= Time.deltaTime;
+	private void HealAI() {
+		if (CurrentHealth < maxHealth) {
+			CurrentHealth += healByLavaValue;
 		}
-		Task.current.Succeed();
-	}
-
-	private IEnumerator SizeLavaPit() {
-		Vector3 pos = new Vector3(Random.Range(-lavaIgniteRadius, lavaIgniteRadius), -0.4f, Random.Range(-lavaIgniteRadius, lavaIgniteRadius));
-		var lava = Instantiate (lavaPrefab, pos, Quaternion.identity);
-
-		Vector3 beginScale = new Vector3(0, 0.43f, 0);
-
-		lava.transform.localScale = beginScale;
-
-		while (lava.transform.localScale.z < lavaMaxSpread) {
-			lava.transform.localScale += new Vector3(1f, 0, 1f) / lavaSpreadTime * Time.deltaTime;
-			//lava.transform.rotation = Quaternion.Lerp(crop.transform.rotation, randomRotation, processingTime * Time.deltaTime);
-
-			yield return new WaitForEndOfFrame();
-		}
-
-		Destroy(lava, 120f);
-	}
-
-	[Task]
-	private void ActivateShield() {
-        foreach(GameObject shield in shields) {
-            shield.SetActive(false);
-        }
-		Task.current.Succeed();
-	}
-
-	[Task]
-	private void DeactivateShield() {
-        foreach(GameObject shield in shields) {
-            shield.SetActive(false);
-        }
 		Task.current.Succeed();
 	}
 	
@@ -257,15 +224,24 @@ public class Unit : MonoBehaviour {
 	// Take damage when hit
 	private void OnTriggerEnter(Collider other) {
 		if(other.CompareTag("Bullet")) {
-			CurrentHealth -= player.GetComponent<Shooting>().damage;
-			print(player.GetComponent<Shooting>().damage);
+			takeHitSound.Play();
+
+			if (!templeAlive) { 
+				CurrentHealth -= player.GetComponent<Shooting>().damage;
+			}
 		}
 	}
 
 	// Heal enemy when in touch with the lava
 	private void OnTriggerStay(Collider other) {
 		if(other.CompareTag("Lava")) {
-			CurrentHealth += 2f;
+			isHealing = true;
+		}
+	}
+
+	private void OnTriggerExit(Collider other) {
+		if(other.CompareTag("Lava")) {
+			isHealing = false;
 		}
 	}
 
@@ -281,8 +257,6 @@ public class Unit : MonoBehaviour {
         Gizmos.DrawWireSphere(transform.position, lookRadius);
 		Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, attackRadius);
-		Gizmos.color = Color.blue;
-        Gizmos.DrawWireSphere(transform.position, lavaIgniteRadius);
     }
 
 	// This method maps a range of numbers into another range

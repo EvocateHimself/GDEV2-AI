@@ -1,8 +1,7 @@
 tree("Root")
     fallback
         tree("FocusPlayer")
-        tree("Attack")  
-        tree("Defend")       
+        tree("Attack")    
 
 tree("FocusPlayer")
 	while
@@ -23,13 +22,5 @@ tree("Attack")
                 ShootFireball
                 MoveToPlayer
                 CreateLavaPit
-
-tree("Defend")
-	while defendAllies
-        repeat
-            fallback
-                ActivateShield
-                Wait(3.0)
-                DeactivateShield
                 
 

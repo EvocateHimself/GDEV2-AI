@@ -4,8 +4,9 @@ using UnityEngine;
 
 public class Fireball : MonoBehaviour {
 
-    public float speed;
-    public GameObject impactPrefab;
+    [SerializeField] private float speed = 15f;
+    [SerializeField] private GameObject impactPrefab;
+	[SerializeField] private AudioSource takeHitSound;
 
     private Transform player;
     private Vector3 target;
@@ -31,6 +32,8 @@ public class Fireball : MonoBehaviour {
 
     private void DestroyFireball() {
         var explosion = Instantiate(impactPrefab, gameObject.transform.position, Quaternion.identity);
+        takeHitSound.Play();
+
         Destroy(explosion, 1f);
         Destroy(gameObject);
     }
