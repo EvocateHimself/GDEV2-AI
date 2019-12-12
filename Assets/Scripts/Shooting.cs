@@ -5,18 +5,19 @@ using UnityEngine.UI;
 
 public class Shooting : MonoBehaviour {
 
-    public Transform firePoint;
-    public GameObject bulletPrefab;
-    public Image powerBar;
+    [SerializeField] private Transform firePoint;
+    [SerializeField] private GameObject bulletPrefab;
+    [SerializeField] private Image powerBar;
+    [SerializeField] private AudioSource fireSound;
 
     public float damage;
     private float currentDamage;
-    public float currentPower = 0;
-    public float startPower = 20f;
-    public float maxPower = 50f;
+    [SerializeField] private float currentPower = 0;
+    [SerializeField] private float startPower = 5f;
+    [SerializeField] private float maxPower = 50f;
     private float currentPowerValue;
-    public float chargeSpeed = 3f;
-    public float lerpSpeed = 10f;
+    [SerializeField] private float chargeSpeed = 30f;
+    [SerializeField] private float lerpSpeed = 10f;
     private bool mouseButtonHeldDown;
 
     public float CurrentPower {
@@ -38,6 +39,7 @@ public class Shooting : MonoBehaviour {
         if (Input.GetMouseButtonUp(0)) {
             damage = currentDamage;
             Shoot();
+            fireSound.Play();
             mouseButtonHeldDown = false;
             currentPower = startPower;
         }

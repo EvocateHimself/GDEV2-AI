@@ -4,21 +4,17 @@ using UnityEngine;
 using UnityEngine.UI;
 
 
-public class TempleHealth : MonoBehaviour {
+public class PlayerHealth : MonoBehaviour {
 
     [Header("Health")]
-	[SerializeField] private Shooting shooting;
 	[SerializeField] private Image healthBar;
-    [SerializeField] private Material destroyedMat;
 	[SerializeField] private AudioSource takeHitSound;
-	[SerializeField] private AudioSource destroySound;
-
+	[SerializeField] private UnitGuard unitGuard;
 
 	[SerializeField] private float currentHealth;
 	private float currentHealthValue;
 	[SerializeField] private float maxHealth = 100f;
 	[SerializeField] private float lerpSpeed = 10f;
-    private bool isDestroyed = false;
 
     public float CurrentHealth {
         get { return currentHealth; }
@@ -36,18 +32,15 @@ public class TempleHealth : MonoBehaviour {
         }
 
         // Die
-		if (CurrentHealth <= 0 && !isDestroyed) {
-			//Destroy(gameObject, .2f);
-            destroySound.Play();
-            gameObject.GetComponent<MeshRenderer>().material = destroyedMat;
-            isDestroyed = true;
+		if (CurrentHealth <= 0) {
+			Destroy(gameObject, .2f);
         }
     }
 
     // Take damage when hit
 	private void OnTriggerEnter(Collider other) {
-		if(other.CompareTag("Bullet")) {
-			CurrentHealth -= shooting.damage;
+		if(other.CompareTag("Fireball")) {
+			CurrentHealth -= unitGuard.fireBallDamage;
 			takeHitSound.Play();
 		}
 	}
