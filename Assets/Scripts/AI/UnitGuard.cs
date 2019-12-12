@@ -187,7 +187,14 @@ public class UnitGuard : MonoBehaviour {
 	IEnumerator FollowPath() {
 
 		int pathIndex = 0;
-		transform.LookAt (path.lookPoints [0]);
+		
+		// Smooth lookAt
+		if (path.lookPoints.Length > 1) {
+			transform.LookAt (path.lookPoints[1]);
+		}
+		else {
+			transform.LookAt (path.lookPoints[0]);
+		}
 
 		float speedPercent = 1;
 

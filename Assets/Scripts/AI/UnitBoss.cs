@@ -62,8 +62,6 @@ public class UnitBoss : MonoBehaviour {
 	private bool shieldAlive = true;
 	private int index;
 
-	public List<GameObject> shields = new List<GameObject>();
-
 	public TempleHealth[] templeHealths;
 
 	[Task]
@@ -83,11 +81,6 @@ public class UnitBoss : MonoBehaviour {
 		fireBallInterval = startTimeFireBallInterval;
 		lavaInterval = startTimeLavaInterval;
 		defendSprite = statusImage.sprite;
-
-		foreach(GameObject shield in GameObject.FindGameObjectsWithTag("Shield")) {
-            shields.Add(shield);
-            //shield.SetActive(false);
-        }
 	}
 
 	private void Update() {
@@ -113,7 +106,12 @@ public class UnitBoss : MonoBehaviour {
 
 		// Check if all temples are destroyed - for loop doesn't seem to be working so doing it manually
 		if (templeHealths[0].CurrentHealth <= 0 
-		&& templeHealths[1].CurrentHealth <= 0) {
+		&& templeHealths[1].CurrentHealth <= 0 
+		&& templeHealths[2].CurrentHealth <= 0 
+		&& templeHealths[3].CurrentHealth <= 0 
+		&& templeHealths[4].CurrentHealth <= 0 
+		&& templeHealths[5].CurrentHealth <= 0 
+		&& templeHealths[6].CurrentHealth <= 0) {
 			shield.SetActive(false); // Deactivate the shield
 			shieldAlive = false;
 		}
@@ -196,7 +194,14 @@ public class UnitBoss : MonoBehaviour {
 	IEnumerator FollowPath() {
 
 		int pathIndex = 0;
-		transform.LookAt (path.lookPoints [0]);
+
+		// Smooth lookAt
+		if (path.lookPoints.Length > 1) {
+			transform.LookAt (path.lookPoints[1]);
+		}
+		else {
+			transform.LookAt (path.lookPoints[0]);
+		}
 
 		float speedPercent = 1;
 
