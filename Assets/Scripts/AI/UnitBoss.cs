@@ -1,9 +1,9 @@
-﻿
-using UnityEngine;
+﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using Panda;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class UnitBoss : MonoBehaviour {
 
@@ -120,7 +120,7 @@ public class UnitBoss : MonoBehaviour {
 		if (currentHealth <= 0 && !isDead) {
 			dieSound.Play();
 			isDead = true;
-			Destroy(gameObject, .5f);
+        	SceneManager.LoadScene("Win");
 		}
 
 		currentHealthValue = Map(CurrentHealth, 0, maxHealth, 0, 1);

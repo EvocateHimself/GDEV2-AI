@@ -1,5 +1,4 @@
-﻿
-using UnityEngine;
+﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using Panda;
@@ -187,7 +186,7 @@ public class UnitGuard : MonoBehaviour {
 	IEnumerator FollowPath() {
 
 		int pathIndex = 0;
-		
+
 		// Smooth lookAt
 		if (path.lookPoints.Length > 1) {
 			transform.LookAt (path.lookPoints[1]);

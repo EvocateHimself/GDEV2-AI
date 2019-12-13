@@ -21,7 +21,7 @@ public class Grid : MonoBehaviour {
 	int penaltyMin = int.MaxValue;
 	int penaltyMax = int.MinValue;
 
-	void Awake() {
+	private void Awake() {
 		nodeDiameter = nodeRadius*2;
 		gridSizeX = Mathf.RoundToInt(gridWorldSize.x/nodeDiameter);
 		gridSizeY = Mathf.RoundToInt(gridWorldSize.y/nodeDiameter);
@@ -40,7 +40,7 @@ public class Grid : MonoBehaviour {
 		}
 	}
 
-	void CreateGrid() {
+	private void CreateGrid() {
 		grid = new Node[gridSizeX,gridSizeY];
 		Vector3 worldBottomLeft = transform.position - Vector3.right * gridWorldSize.x/2 - Vector3.forward * gridWorldSize.y/2;
 
@@ -71,7 +71,7 @@ public class Grid : MonoBehaviour {
 
 	}
 
-	void BlurPenaltyMap(int blurSize) {
+	private void BlurPenaltyMap(int blurSize) {
 		int kernelSize = blurSize * 2 + 1;
 		int kernelExtents = (kernelSize - 1) / 2;
 
@@ -152,7 +152,7 @@ public class Grid : MonoBehaviour {
 		return grid[x,y];
 	}
 
-	void OnDrawGizmos() {
+	private void OnDrawGizmos() {
 		Gizmos.DrawWireCube(transform.position,new Vector3(gridWorldSize.x,1,gridWorldSize.y));
 		if (grid != null && displayGridGizmos) {
 			foreach (Node n in grid) {
@@ -169,6 +169,4 @@ public class Grid : MonoBehaviour {
 		public LayerMask terrainMask;
 		public int terrainPenalty;
 	}
-
-
 }

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-
+using UnityEngine.SceneManagement;
 
 public class PlayerHealth : MonoBehaviour {
 
@@ -39,7 +39,7 @@ public class PlayerHealth : MonoBehaviour {
 
         // Die
 		if (CurrentHealth <= 0) {
-			Destroy(gameObject, .2f);
+        	SceneManager.LoadScene("Lose");
         }
     }
 
