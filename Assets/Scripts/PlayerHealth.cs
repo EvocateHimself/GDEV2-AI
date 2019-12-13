@@ -33,6 +33,7 @@ public class PlayerHealth : MonoBehaviour {
 
     private void Update() {
         if (healthBar != null) {
+            // Map the player health
             currentHealthValue = Map(CurrentHealth, 0, maxHealth, 0, 1);
             healthBar.fillAmount = Mathf.Lerp(healthBar.fillAmount, currentHealthValue, Time.deltaTime * lerpSpeed);
         }

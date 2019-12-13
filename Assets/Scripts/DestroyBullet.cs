@@ -16,6 +16,7 @@ public class DestroyBullet : MonoBehaviour {
         }
     }
 
+    // Destroy the fireball and instantiate an explosion effect
     private void DestroyFireball() {
         var explosion = Instantiate(impactPrefab, gameObject.transform.position, Quaternion.identity);
         Destroy(explosion, 1f);

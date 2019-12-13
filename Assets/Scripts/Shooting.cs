@@ -32,10 +32,12 @@ public class Shooting : MonoBehaviour {
     private void Update() {
         currentDamage = currentPower;
 
+        // Check if the mouse button is held down
         if (Input.GetMouseButtonDown(0)) {
             mouseButtonHeldDown = true;
         }
 
+        // Shoot and calculate the damage multiplier when the mouse button is released
         if (Input.GetMouseButtonUp(0)) {
             damage = currentDamage;
             Shoot();
@@ -44,6 +46,7 @@ public class Shooting : MonoBehaviour {
             currentPower = startPower;
         }
 
+        // Increase the damage multiplier based on how long the mouse button is held down
         if(mouseButtonHeldDown && currentPower <= maxPower) {
             currentPower += Time.deltaTime * chargeSpeed;
         }
@@ -51,6 +54,7 @@ public class Shooting : MonoBehaviour {
         powerBar.fillAmount = Mathf.Lerp(powerBar.fillAmount, currentPowerValue, Time.deltaTime * lerpSpeed);
     }
 
+    // Shoot an ice ball to the mouse position
     private void Shoot() {
         GameObject bullet = Instantiate(bulletPrefab, firePoint.position, firePoint.rotation);
         Rigidbody rb = bullet.GetComponent<Rigidbody>();

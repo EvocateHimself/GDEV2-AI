@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-
 public class TempleHealth : MonoBehaviour {
 
     [Header("Health")]
@@ -12,7 +11,6 @@ public class TempleHealth : MonoBehaviour {
     [SerializeField] private Material destroyedMat;
 	[SerializeField] private AudioSource takeHitSound;
 	[SerializeField] private AudioSource destroySound;
-
 
 	[SerializeField] private float currentHealth;
 	private float currentHealthValue;
@@ -31,6 +29,7 @@ public class TempleHealth : MonoBehaviour {
 
     private void Update() {
         if (healthBar != null) {
+            // Map the temple health values
             currentHealthValue = Map(CurrentHealth, 0, maxHealth, 0, 1);
             healthBar.fillAmount = Mathf.Lerp(healthBar.fillAmount, currentHealthValue, Time.deltaTime * lerpSpeed);
         }

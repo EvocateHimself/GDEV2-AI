@@ -11,7 +11,6 @@ public class UnitBoss : MonoBehaviour {
 	const float pathUpdateMoveThreshold = .5f;
 	bool followingPath = true;
 
-
 	[Header("Movement")]
 	[SerializeField] private Transform player;
 	private float currentSpeed;
@@ -123,10 +122,12 @@ public class UnitBoss : MonoBehaviour {
         	SceneManager.LoadScene("Win");
 		}
 
-		currentHealthValue = Map(CurrentHealth, 0, maxHealth, 0, 1);
+		// Mapping the health bar
+		currentHealthValue = Map(CurrentHealth, 0, maxHealth, 0, 1); 
         healthBar.fillAmount = Mathf.Lerp(healthBar.fillAmount, currentHealthValue, Time.deltaTime * lerpSpeed);
 	}
 
+	// If the path has been found, follow the path
 	public void OnPathFound(Vector3[] waypoints, bool pathSuccessful) {
 		if (pathSuccessful) {
 			path = new CreatePath(waypoints, transform.position, turnDst, stoppingDst);
@@ -168,6 +169,7 @@ public class UnitBoss : MonoBehaviour {
 		Task.current.Succeed();
 	}
 
+	// Increase the size of the lava pit over time
 	private IEnumerator SizeLavaPit() {
 		Vector3 pos = new Vector3(Random.Range(-lavaIgniteRadius, lavaIgniteRadius), -0.4f, Random.Range(-lavaIgniteRadius, lavaIgniteRadius));
 		var lava = Instantiate (lavaPrefab, pos, Quaternion.identity);
@@ -179,7 +181,6 @@ public class UnitBoss : MonoBehaviour {
 
 		while (lava.transform.localScale.z < lavaMaxSpread) {
 			lava.transform.localScale += new Vector3(1f, 0, 1f) / lavaSpreadTime * Time.deltaTime;
-			//lava.transform.rotation = Quaternion.Lerp(crop.transform.rotation, randomRotation, processingTime * Time.deltaTime);
 
 			yield return new WaitForEndOfFrame();
 		}
@@ -187,10 +188,12 @@ public class UnitBoss : MonoBehaviour {
 		Destroy(lava, 120f);
 	}
 	
+	// Update path to target position
 	private void UpdatePath(Transform _target) {
 		PathRequestManager.RequestPath (new PathRequest(transform.position, _target.position, OnPathFound));
 	}
 
+	// Function that calculates the path and follows it
 	IEnumerator FollowPath() {
 
 		int pathIndex = 0;
@@ -246,13 +249,14 @@ public class UnitBoss : MonoBehaviour {
 		}
 	}
 
+	// Create gizmos for the waypoints
 	private void OnDrawGizmos() {
 		if (path != null) {
 			path.DrawWithGizmos ();
 		}
 	}
 
-    // Create Gizmos around gameObject in the inspector
+    // Create Gizmos around gameObject in the inspector for the look, attack and lava ignite radius
     private void OnDrawGizmosSelected() {
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireSphere(transform.position, lookRadius);

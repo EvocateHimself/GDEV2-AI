@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -15,6 +15,7 @@ public struct Line {
 
 	bool approachSide;
 
+    // Create a line on each waypoint
 	public Line(Vector2 pointOnLine, Vector2 pointPerpendicularToLine) {
 		float dx = pointOnLine.x - pointPerpendicularToLine.x;
 		float dy = pointOnLine.y - pointPerpendicularToLine.y;
@@ -39,14 +40,17 @@ public struct Line {
 		approachSide = GetSide (pointPerpendicularToLine);
 	}
 
+    // Get the side of each line on the waypoint
 	bool GetSide(Vector2 p) {
 		return (p.x - pointOnLine_1.x) * (pointOnLine_2.y - pointOnLine_1.y) > (p.y - pointOnLine_1.y) * (pointOnLine_2.x - pointOnLine_1.x);
 	}
 
+    // Check if the side has crossed the line
 	public bool HasCrossedLine(Vector2 p) {
 		return GetSide (p) != approachSide;
 	}
 
+    // Get the distance from point
 	public float DistanceFromPoint(Vector2 p) {
 		float yInterceptPerpendicular = p.y - gradientPerpendicular * p.x;
 		float intersectX = (yInterceptPerpendicular - y_intercept) / (gradient - gradientPerpendicular);
@@ -54,6 +58,7 @@ public struct Line {
 		return Vector2.Distance (p, new Vector2 (intersectX, intersectY));
 	}
 
+    // Create gizmos for the waypoints and path lines
 	public void DrawWithGizmos(float length) {
 		Vector3 lineDir = new Vector3 (1, 0, gradient).normalized;
 		Vector3 lineCentre = new Vector3 (pointOnLine_1.x, 0, pointOnLine_1.y) + Vector3.up;

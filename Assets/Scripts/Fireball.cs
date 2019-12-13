@@ -16,6 +16,7 @@ public class Fireball : MonoBehaviour {
         target = new Vector3(player.position.x, 0, player.position.z);
     }
 
+    // Move the fireball forward when instantiated
     private void FixedUpdate() {
         Vector3 velocity = this.transform.forward * speed;
         this.transform.position = this.transform.position + velocity * Time.deltaTime;
@@ -30,6 +31,7 @@ public class Fireball : MonoBehaviour {
         }
     }
 
+    // Destroy the fireball and instantiate an explosion effect
     private void DestroyFireball() {
         var explosion = Instantiate(impactPrefab, gameObject.transform.position, Quaternion.identity);
         takeHitSound.Play();

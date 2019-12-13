@@ -14,6 +14,7 @@ public class Node : IHeapItem<Node> {
 	public Node parent;
 	int heapIndex;
 	
+	// Create a node on the grid
 	public Node(bool _walkable, Vector3 _worldPos, int _gridX, int _gridY, int _penalty) {
 		walkable = _walkable;
 		worldPosition = _worldPos;
@@ -22,12 +23,14 @@ public class Node : IHeapItem<Node> {
 		movementPenalty = _penalty;
 	}
 
+	// Return the fCost (gCost + hCost)
 	public int fCost {
 		get {
 			return gCost + hCost;
 		}
 	}
 
+	// Return the heap index
 	public int HeapIndex {
 		get {
 			return heapIndex;
@@ -37,6 +40,7 @@ public class Node : IHeapItem<Node> {
 		}
 	}
 
+	// Compare the nodes to each other
 	public int CompareTo(Node nodeToCompare) {
 		int compare = fCost.CompareTo(nodeToCompare.fCost);
 		if (compare == 0) {

@@ -15,6 +15,7 @@ public class Controller : MonoBehaviour {
         viewCamera = Camera.main;
     }
 
+    // Face the mouse position and move with WASD
     private void Update() {
         Vector3 mousePos = viewCamera.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, viewCamera.transform.position.y));
         transform.LookAt(mousePos + Vector3.up * transform.position.y);

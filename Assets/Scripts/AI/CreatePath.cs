@@ -9,6 +9,7 @@ public class CreatePath {
 	public readonly int finishLineIndex;
 	public readonly int slowDownIndex;
 
+	// Creates a path with waypoints from the start position to target position
 	public CreatePath(Vector3[] waypoints, Vector3 startPos, float turnDst, float stoppingDst) {
 		lookPoints = waypoints;
 		turnBoundaries = new Line[lookPoints.Length];
@@ -33,10 +34,12 @@ public class CreatePath {
 		}
 	}
 
+	// Convert Vector3 to Vector2
 	Vector2 V3ToV2(Vector3 v3) {
 		return new Vector2 (v3.x, v3.z);
 	}
 
+	// Create gizmos for the waypoints and path lines
 	public void DrawWithGizmos() {
 
 		Gizmos.color = Color.black;

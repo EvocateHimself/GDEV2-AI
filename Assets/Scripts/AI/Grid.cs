@@ -40,6 +40,7 @@ public class Grid : MonoBehaviour {
 		}
 	}
 
+	// Create the grid based on the X and Y size
 	private void CreateGrid() {
 		grid = new Node[gridSizeX,gridSizeY];
 		Vector3 worldBottomLeft = transform.position - Vector3.right * gridWorldSize.x/2 - Vector3.forward * gridWorldSize.y/2;
@@ -71,6 +72,7 @@ public class Grid : MonoBehaviour {
 
 	}
 
+	// Smooth blur the unwalkable areas
 	private void BlurPenaltyMap(int blurSize) {
 		int kernelSize = blurSize * 2 + 1;
 		int kernelExtents = (kernelSize - 1) / 2;
@@ -119,7 +121,9 @@ public class Grid : MonoBehaviour {
 		}
 
 	}
+	
 
+	// Get a list of neighbours of the nodes
 	public List<Node> GetNeighbours(Node node) {
 		List<Node> neighbours = new List<Node>();
 
@@ -140,7 +144,7 @@ public class Grid : MonoBehaviour {
 		return neighbours;
 	}
 
-
+	// Calculate the node from world position and return the x and y values
 	public Node NodeFromWorldPoint(Vector3 worldPosition) {
 		float percentX = (worldPosition.x + gridWorldSize.x/2) / gridWorldSize.x;
 		float percentY = (worldPosition.z + gridWorldSize.y/2) / gridWorldSize.y;
@@ -152,6 +156,7 @@ public class Grid : MonoBehaviour {
 		return grid[x,y];
 	}
 
+	// Create gizmos for the waypoints and path lines
 	private void OnDrawGizmos() {
 		Gizmos.DrawWireCube(transform.position,new Vector3(gridWorldSize.x,1,gridWorldSize.y));
 		if (grid != null && displayGridGizmos) {

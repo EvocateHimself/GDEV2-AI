@@ -6,6 +6,7 @@ public class EnemyUIHandler : MonoBehaviour{
 
     public Transform target;
  
+    // Move the position of the health UI to the unit position
     void Update() {
         if (target != null) {
             transform.position = new Vector3(target.position.x, transform.position.y, target.position.z);

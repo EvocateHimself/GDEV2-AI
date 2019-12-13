@@ -12,7 +12,7 @@ public class Pathfinding : MonoBehaviour {
 		grid = GetComponent<Grid>();
 	}
 	
-
+	// Find the closest path from the pathrequest
 	public void FindPath(PathRequest request, Action<PathResult> callback) {
 		
 		Stopwatch sw = new Stopwatch();
@@ -69,7 +69,7 @@ public class Pathfinding : MonoBehaviour {
 		
 	}
 		
-	
+	// Retrace the path from the startnode to endnode
 	Vector3[] RetracePath(Node startNode, Node endNode) {
 		List<Node> path = new List<Node>();
 		Node currentNode = endNode;
@@ -84,6 +84,7 @@ public class Pathfinding : MonoBehaviour {
 		
 	}
 	
+	// Simplify the path and add the waypoints to the array
 	Vector3[] SimplifyPath(List<Node> path) {
 		List<Vector3> waypoints = new List<Vector3>();
 		Vector2 directionOld = Vector2.zero;
@@ -98,6 +99,7 @@ public class Pathfinding : MonoBehaviour {
 		return waypoints.ToArray();
 	}
 	
+	// Get the distance from nodeA to nodeB
 	int GetDistance(Node nodeA, Node nodeB) {
 		int dstX = Mathf.Abs(nodeA.gridX - nodeB.gridX);
 		int dstY = Mathf.Abs(nodeA.gridY - nodeB.gridY);

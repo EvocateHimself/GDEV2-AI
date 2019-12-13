@@ -10,7 +10,6 @@ public class UnitGuard : MonoBehaviour {
 	const float pathUpdateMoveThreshold = .5f;
 	bool followingPath = true;
 
-
 	[Header("Movement")]
 	[SerializeField] private Transform player;
 	private float currentSpeed;
@@ -112,10 +111,12 @@ public class UnitGuard : MonoBehaviour {
 
 		}
 
+		// Mapping the health bar
 		currentHealthValue = Map(CurrentHealth, 0, maxHealth, 0, 1);
         healthBar.fillAmount = Mathf.Lerp(healthBar.fillAmount, currentHealthValue, Time.deltaTime * lerpSpeed);
 	}
 
+	// If the path has been found, follow the path
 	public void OnPathFound(Vector3[] waypoints, bool pathSuccessful) {
 		if (pathSuccessful) {
 			path = new CreatePath(waypoints, transform.position, turnDst, stoppingDst);
@@ -179,10 +180,12 @@ public class UnitGuard : MonoBehaviour {
 		Task.current.Succeed();
 	}
 	
+	// Update path to target position
 	private void UpdatePath(Transform _target) {
 		PathRequestManager.RequestPath (new PathRequest(transform.position, _target.position, OnPathFound));
 	}
 
+	// Function that calculates the path and follows it
 	IEnumerator FollowPath() {
 
 		int pathIndex = 0;
@@ -257,7 +260,7 @@ public class UnitGuard : MonoBehaviour {
 		}
 	}
 
-    // Create Gizmos around gameObject in the inspector
+    // Create Gizmos around gameObject in the inspector for the look and attack radius
     private void OnDrawGizmosSelected() {
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireSphere(transform.position, lookRadius);

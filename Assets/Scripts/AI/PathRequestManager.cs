@@ -28,6 +28,7 @@ public class PathRequestManager : MonoBehaviour {
 		}
 	}
 
+	// Request the path and send it to findPath
 	public static void RequestPath(PathRequest request) {
 		ThreadStart threadStart = delegate {
 			instance.pathfinding.FindPath (request, instance.FinishedProcessingPath);
@@ -35,14 +36,12 @@ public class PathRequestManager : MonoBehaviour {
 		threadStart.Invoke ();
 	}
 
+	// Function to check if the path has finished processing
 	public void FinishedProcessingPath(PathResult result) {
 		lock (results) {
 			results.Enqueue (result);
 		}
 	}
-
-
-
 }
 
 public struct PathResult {
